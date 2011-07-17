@@ -38,7 +38,7 @@
 
 (defn before [f] {:before f})
 
-(defn has-meta? [key] (fn [v] ((meta v) key)))
+(defn has-meta? [key] #(-> % meta (get key)))
 
 (defn namespaces [& nss]
   (let [f (fn f [ns]
