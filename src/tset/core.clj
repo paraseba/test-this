@@ -74,3 +74,6 @@
 (defonce default (before (reload-changed "src" "test")))
 
 (defn has-meta? [key] (fn [v] (contains? (meta v) key)))
+
+(defn tset [& options]
+  (run (apply merge default options)))
