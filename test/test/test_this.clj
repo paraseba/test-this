@@ -2,11 +2,15 @@
   (:use [test-this])
   (:use [clojure.test]))
 
+(defn make-ns [name meta]
+  (doto (create-ns name)
+    (alter-meta! merge meta)))
+
 (deftest test-ns-matcher
-  (are [args] ((:namespace-filter (apply namespaces args)) (create-ns 'my-ns))
+  (are [args] ((:namespace-filter (apply namespaces args)) (make-ns 'my-ns {:my-meta :meta}))
     ['my-ns]
     [:all]
-    [:my-ns]
+    [:my-meta]
     [#".*my-.*"]
     [(constantly true)]
     ['my-ns]
@@ -14,15 +18,17 @@
     ['other 'my-ns 'foo]
     [:all :other 'foo]
     [:other :all :foo]
-    [:my-ns :other 'foo]
-    [:other :my-ns :foo]
+    [:my-meta :other 'foo]
+    [:other :my-meta :foo]
     [(constantly true) :other 'foo]
     [:other (constantly true) :foo]
-    [[:all #".*my.*" 'my-ns :my-ns] :foo])
+    [[:all #".*my.*" 'my-ns :my-meta] :foo])
 
-  (are [args] (not ((:namespace-filter (apply namespaces args)) (create-ns 'my-ns)))
+  (are [args] (not ((:namespace-filter (apply namespaces args))
+                      (make-ns 'my-ns {:my-meta :meta :false false})))
     ['myxx-ns]
     [:myxx-ns]
+    [:false]
     [#".*myxx-.*"]
     [(constantly false)]
     ['myxx-ns]
@@ -36,11 +42,15 @@
     [:other (constantly false) :foo]
     [[:all #".*my.*" 'myxx-ns :my-ns] :foo]))
 
+(defn make-var [name meta]
+  (doto (intern (create-ns 'foo-ns) name)
+    (alter-meta! merge meta)))
+
 (deftest test-vars-matcher
-  (are [args] ((:test-filter (apply tests args)) (intern (create-ns 'foo-ns) 'my-var))
+  (are [args] ((:test-filter (apply tests args)) (make-var 'my-var {:my-meta :meta}))
     ['my-var]
     [:all]
-    [:my-var]
+    [:my-meta]
     [#".*my-.*"]
     [(constantly true)]
     ['my-var]
@@ -48,15 +58,16 @@
     ['other 'my-var 'foo]
     [:all :other 'foo]
     [:other :all :foo]
-    [:my-var :other 'foo]
-    [:other :my-var :foo]
+    [:my-meta :other 'foo]
+    [:other :my-meta :foo]
     [(constantly true) :other 'foo]
     [:other (constantly true) :foo]
-    [[:all #".*my.*" 'my-var :my-var] :foo])
+    [[:all #".*my.*" 'my-var :my-meta] :foo])
 
-  (are [args] (not ((:test-filter (apply tests args)) (intern (create-ns 'foo-ns) 'my-var)))
+  (are [args] (not ((:test-filter (apply tests args)) (make-var 'my-var {:my-meta :meta :false false})))
     ['myxx-var]
-    [:myxx-var]
+    [:myxx-meta]
+    [:false]
     [#".*myxx-.*"]
     [(constantly false)]
     ['myxx-var]
@@ -64,15 +75,9 @@
     ['other 'myxx-var 'foo]
     [:other 'foo]
     [:other :foo]
-    [:myxx-var :other 'foo]
-    [:other :myxx-var :foo]
+    [:myxx-meta :other 'foo]
+    [:other :myxx-meta :foo]
     [(constantly false) :other 'foo]
     [:other (constantly false) :foo]
-    [[:all #".*my.*" 'myxx-var :my-var] :foo])
+    [[:all #".*my.*" 'myxx-var :my-meta] :foo]))
 
-  (is ((:test-filter (tests (has-meta? :wip)))
-         (intern (create-ns 'foo-ns)
-                 (with-meta 'my-var {:wip true}))))
-  (is (not ((:test-filter (tests (has-meta? :wipxx)))
-              (intern (create-ns 'foo-ns)
-                      (with-meta 'my-var {:wip true}))))))

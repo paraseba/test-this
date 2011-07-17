@@ -38,12 +38,14 @@
 
 (defn before [f] {:before f})
 
+(defn has-meta? [key] (fn [v] ((meta v) key)))
+
 (defn namespaces [& nss]
   (let [f (fn f [ns]
             (cond
               (symbol? ns) #(= ns (ns-name %))
               (= :all ns) (constantly true)
-              (keyword? ns) #(= (symbol (name ns)) (ns-name %))
+              (keyword? ns) (has-meta? ns)
               (isa? (class ns) java.util.regex.Pattern)
               #(re-matches ns (str (ns-name %)))
               (fn? ns) ns
@@ -57,7 +59,7 @@
             (cond
               (symbol? v) #(= (.sym %) v)
               (= :all v) (constantly true)
-              (keyword? v) #(= (.sym %) (symbol (name v)))
+              (keyword? v) (has-meta? v)
               (fn? v) v
               (isa? (class v) java.util.regex.Pattern) #(re-matches v (str (.sym %)))
               (seqable? v) (fn [va] (every? #(% va) (map f v)))
@@ -72,8 +74,6 @@
         (apply reload t)))))
 
 (defonce default (before (reload-changed "src" "test")))
-
-(defn has-meta? [key] (fn [v] (contains? (meta v) key)))
 
 (defn test-this [& options]
   (run (apply merge default options)))
