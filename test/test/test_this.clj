@@ -1,6 +1,6 @@
 (ns test.test_this
   (:use [test-this])
-  (:use [clojure.test]))
+  (:use [clojure.test :only (is are deftest)]))
 
 (defn make-ns [name meta]
   (doto (create-ns name)
