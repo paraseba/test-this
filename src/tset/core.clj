@@ -39,7 +39,7 @@
 (defn before [f] {:before f})
 
 (defn namespaces [& nss]
-  (let [f (fn [ns]
+  (let [f (fn f [ns]
             (cond
               (symbol? ns) #(= ns (ns-name %))
               (= :all ns) (constantly true)
@@ -47,18 +47,20 @@
               (isa? (class ns) java.util.regex.Pattern)
               #(re-matches ns (str (ns-name %)))
               (fn? ns) ns
+              (seqable? ns) (fn [n] (every? #(% n) (map f ns)))
               :else (throw (IllegalArgumentException.
                              (str "Invalid namespace definition: " ns)))))]
     {:namespace-filter (fn [n] (some #(% n) (map f nss)))}))
 
 (defn tests [& ts]
-  (let [f (fn [v]
+  (let [f (fn f [v]
             (cond
               (symbol? v) #(= (.sym %) v)
               (= :all v) (constantly true)
               (keyword? v) #(= (.sym %) (symbol (name v)))
               (fn? v) v
               (isa? (class v) java.util.regex.Pattern) #(re-matches v (str (.sym %)))
+              (seqable? v) (fn [va] (every? #(% va) (map f v)))
               :else (throw (IllegalArgumentException. "Invalid tests definition"))))]
   {:test-filter (fn [n] (some #(% n) (map f ts)))}))
 

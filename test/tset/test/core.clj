@@ -17,7 +17,8 @@
     [:my-ns :other 'foo]
     [:other :my-ns :foo]
     [(constantly true) :other 'foo]
-    [:other (constantly true) :foo])
+    [:other (constantly true) :foo]
+    [[:all #".*my.*" 'my-ns :my-ns] :foo])
 
   (are [args] (not ((:namespace-filter (apply namespaces args)) (create-ns 'my-ns)))
     ['myxx-ns]
@@ -32,7 +33,8 @@
     [:myxx-ns :other 'foo]
     [:other :myxx-ns :foo]
     [(constantly false) :other 'foo]
-    [:other (constantly false) :foo]))
+    [:other (constantly false) :foo]
+    [[:all #".*my.*" 'myxx-ns :my-ns] :foo]))
 
 (deftest test-vars-mantcher
   (are [args] ((:test-filter (apply tests args)) (intern (create-ns 'foo-ns) 'my-var))
@@ -49,7 +51,8 @@
     [:my-var :other 'foo]
     [:other :my-var :foo]
     [(constantly true) :other 'foo]
-    [:other (constantly true) :foo])
+    [:other (constantly true) :foo]
+    [[:all #".*my.*" 'my-var :my-var] :foo])
 
   (are [args] (not ((:test-filter (apply tests args)) (intern (create-ns 'foo-ns) 'my-var)))
     ['myxx-var]
@@ -64,4 +67,5 @@
     [:myxx-var :other 'foo]
     [:other :myxx-var :foo]
     [(constantly false) :other 'foo]
-    [:other (constantly false) :foo]))
+    [:other (constantly false) :foo]
+    [[:all #".*my.*" 'myxx-var :my-var] :foo]))
