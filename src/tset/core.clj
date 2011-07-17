@@ -72,3 +72,5 @@
         (apply reload t)))))
 
 (defonce default (before (reload-changed "src" "test")))
+
+(defn has-meta? [key] (fn [v] (contains? (meta v) key)))

@@ -68,4 +68,11 @@
     [:other :myxx-var :foo]
     [(constantly false) :other 'foo]
     [:other (constantly false) :foo]
-    [[:all #".*my.*" 'myxx-var :my-var] :foo]))
+    [[:all #".*my.*" 'myxx-var :my-var] :foo])
+
+  (is ((:test-filter (tests (has-meta? :wip)))
+         (intern (create-ns 'foo-ns)
+                 (with-meta 'my-var {:wip true}))))
+  (is (not ((:test-filter (tests (has-meta? :wipxx)))
+              (intern (create-ns 'foo-ns)
+                      (with-meta 'my-var {:wip true}))))))
