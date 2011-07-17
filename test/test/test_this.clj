@@ -7,7 +7,7 @@
     (alter-meta! merge meta)))
 
 (deftest test-ns-matcher
-  (are [args] ((:namespace-filter (apply namespaces args)) (make-ns 'my-ns {:my-meta :meta}))
+  (are [args] ((:namespace-filter (apply match-namespaces args)) (make-ns 'my-ns {:my-meta :meta}))
     ['my-ns]
     [:all]
     [:my-meta]
@@ -24,7 +24,7 @@
     [:other (constantly true) :foo]
     [[:all #".*my.*" 'my-ns :my-meta] :foo])
 
-  (are [args] (not ((:namespace-filter (apply namespaces args))
+  (are [args] (not ((:namespace-filter (apply match-namespaces args))
                       (make-ns 'my-ns {:my-meta :meta :false false})))
     ['myxx-ns]
     [:myxx-ns]
@@ -47,7 +47,7 @@
     (alter-meta! merge meta)))
 
 (deftest test-vars-matcher
-  (are [args] ((:test-filter (apply tests args)) (make-var 'my-var {:my-meta :meta}))
+  (are [args] ((:test-filter (apply match-tests args)) (make-var 'my-var {:my-meta :meta}))
     ['my-var]
     [:all]
     [:my-meta]
@@ -64,7 +64,7 @@
     [:other (constantly true) :foo]
     [[:all #".*my.*" 'my-var :my-meta] :foo])
 
-  (are [args] (not ((:test-filter (apply tests args)) (make-var 'my-var {:my-meta :meta :false false})))
+  (are [args] (not ((:test-filter (apply match-tests args)) (make-var 'my-var {:my-meta :meta :false false})))
     ['myxx-var]
     [:myxx-meta]
     [:false]

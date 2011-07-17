@@ -30,17 +30,15 @@
 (defn run [{test-filter :test-filter ns-filter :namespace-filter
             before :before after :after dir :test-dir
             :or {test-filter (constantly true) ns-filter (constantly true)
-                 dir "test" before (fn [& args]) after (fn [& args])}}]
+                 dir "test" before (fn []) after identity}}]
   (before)
   (let [dir (file dir)
         nss (get-test-namespaces dir ns-filter)]
     (after (do-run-tests nss test-filter))))
 
-(defn before [f] {:before f})
-
 (defn has-meta? [key] #(-> % meta (get key)))
 
-(defn namespaces [& nss]
+(defn match-namespaces [& nss]
   (let [f (fn f [ns]
             (cond
               (symbol? ns) #(= ns (ns-name %))
@@ -54,7 +52,7 @@
                              (str "Invalid namespace definition: " ns)))))]
     {:namespace-filter (fn [n] (some #(% n) (map f nss)))}))
 
-(defn tests [& ts]
+(defn match-tests [& ts]
   (let [f (fn f [v]
             (cond
               (symbol? v) #(= (.sym %) v)
@@ -73,7 +71,21 @@
         (println (format "Reloading: %s" (join ", " t)))
         (apply reload t)))))
 
-(defonce default (before (reload-changed "src" "test")))
-
-(defn test-this [& options]
-  (run (apply merge default options)))
+(defn test-this [& {:keys [namespaces tests reload-dirs reload? before after]
+                    :or {reload-dirs ["src" "test"] before (fn []) after (fn [_])}
+                    :as options}]
+  (let [nss (if namespaces
+              (apply match-namespaces (flatten [namespaces]))
+              {})
+        tests (if tests
+                (apply match-tests (flatten [tests]))
+                {})
+        reload-dirs (flatten [reload-dirs])
+        reload? (not (false? reload?))
+        hooks {:before (if reload?
+                         #(do
+                            (before)
+                            ((apply reload-changed reload-dirs)))
+                         before)
+               :after after}]
+  (run (merge hooks nss tests))))
