@@ -2,11 +2,8 @@
   (:use [tset.core])
   (:use [clojure.test]))
 
-;(use-fixtures :once (fn [f] (prn "once-fixture----------") (f)))
-;(use-fixtures :each (fn [f] (prn "each-fixture----------") (f)))
-
 (deftest test-ns-mantcher
-  (are [arg name] ((namespaces arg) (create-ns name))
+  (are [arg name] ((:namespace-filter (namespaces arg)) (create-ns name))
     'my-ns 'my-ns
     :all 'my-ns
     :my-ns 'my-ns
@@ -22,7 +19,7 @@
     [(constantly true) :other 'foo] 'my-ns
     [:other (constantly true) :foo] 'my-ns)
 
-  (are [arg name] (not ((namespaces arg) (create-ns name)))
+  (are [arg name] (not ((:namespace-filter (namespaces arg)) (create-ns name)))
     'myxx-ns 'my-ns
     :myxx-ns 'my-ns
     #".*myxx-.*" 'my-ns
@@ -38,7 +35,7 @@
     [:other (constantly false) :foo] 'my-ns))
 
 (deftest test-vars-mantcher
-  (are [arg name] ((tests arg) (intern (create-ns 'foo-ns) name))
+  (are [arg name] ((:test-filter (tests arg)) (intern (create-ns 'foo-ns) name))
     'my-var 'my-var
     :all 'my-var
     :my-var 'my-var
@@ -54,7 +51,7 @@
     [(constantly true) :other 'foo] 'my-var
     [:other (constantly true) :foo] 'my-var)
 
-  (are [arg name] (not ((tests arg) (intern (create-ns 'foo-ns) name)))
+  (are [arg name] (not ((:test-filter (tests arg)) (intern (create-ns 'foo-ns) name)))
     'myxx-var 'my-var
     :myxx-var 'my-var
     #".*myxx-.*" 'my-var
