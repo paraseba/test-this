@@ -1,13 +1,13 @@
-# tset
+# test-this
 
-FIXME: write description
+Simple test runner for clojure
 
 ## Usage
 
-FIXME: write
+Coming soon
 
 ## License
 
-Copyright (C) 2011 FIXME
+Copyright (C) 2011 Sebastián B. Galkin
 
 Distributed under the Eclipse Public License, the same as Clojure.
