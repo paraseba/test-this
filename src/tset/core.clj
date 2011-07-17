@@ -1,14 +1,15 @@
 (ns tset.core
-  (:use [lazytest.reload :only [reload]]
-        [clojure.string :only [join]])
-  (:require clojure.tools.namespace
-            clojure.java.io
-            [lazytest.tracker :as tracker]
-            [clojure.test :as cljtest]))
+  (:use [clojure.core.incubator :only [seqable?]]
+        [clojure.tools.namespace :only [find-namespaces-in-dir]]
+        [clojure.string :only [join]]
+        [clojure.java.io :only [file]]
+        [lazytest.reload :only [reload]]
+        [lazytest.tracker :only [tracker]])
+  (:require [clojure.test :as cljtest]))
 
 (defn get-test-namespaces [base-dir ns-filter]
   (filter ns-filter
-          (clojure.tools.namespace/find-namespaces-in-dir base-dir)))
+          (find-namespaces-in-dir base-dir)))
 
 (defn my-test-all-vars
   [test-filter ns]
@@ -31,36 +32,38 @@
             :or {test-filter (constantly true) ns-filter (constantly true)
                  dir "test" before (fn [& args]) after (fn [& args])}}]
   (before)
-  (let [dir (clojure.java.io/file dir)
+  (let [dir (file dir)
         nss (get-test-namespaces dir ns-filter)]
     (after (do-run-tests nss test-filter))))
 
 (defn before [f] {:before f})
 
-(defn namespaces [nss]
-  {:namespace-filter
-   (cond
-     (symbol? nss) #(= nss (ns-name %))
-     (= :all nss) (constantly true)
-     (keyword? nss) #(= (symbol (name nss)) (ns-name %))
-     (vector? nss) (fn [n] (some #(% n) (map (comp :namespace-filter namespaces) nss)))
-     (isa? (class nss) java.util.regex.Pattern) #(re-matches nss (str (ns-name %)))
-     (fn? nss) nss
-     :else (throw (IllegalArgumentException. "Invalid namespace definition")))})
+(defn namespaces [& nss]
+  (let [f (fn [ns]
+            (cond
+              (symbol? ns) #(= ns (ns-name %))
+              (= :all ns) (constantly true)
+              (keyword? ns) #(= (symbol (name ns)) (ns-name %))
+              (isa? (class ns) java.util.regex.Pattern)
+              #(re-matches ns (str (ns-name %)))
+              (fn? ns) ns
+              :else (throw (IllegalArgumentException.
+                             (str "Invalid namespace definition: " ns)))))]
+    {:namespace-filter (fn [n] (some #(% n) (map f nss)))}))
 
-(defn tests [ts]
-  {:test-filter
-   (cond
-     (symbol? ts) #(= (.sym %) ts)
-     (= :all ts) (constantly true)
-     (keyword? ts) #(= (.sym %) (symbol (name ts)))
-     (vector? ts) (fn [v] (some #(% v) (map (comp :test-filter tests) ts)))
-     (fn? ts) ts
-     (isa? (class ts) java.util.regex.Pattern) #(re-matches ts (str (.sym %)))
-     :else (throw (IllegalArgumentException. "Invalid tests definition")))})
+(defn tests [& ts]
+  (let [f (fn [v]
+            (cond
+              (symbol? v) #(= (.sym %) v)
+              (= :all v) (constantly true)
+              (keyword? v) #(= (.sym %) (symbol (name v)))
+              (fn? v) v
+              (isa? (class v) java.util.regex.Pattern) #(re-matches v (str (.sym %)))
+              :else (throw (IllegalArgumentException. "Invalid tests definition"))))]
+  {:test-filter (fn [n] (some #(% n) (map f ts)))}))
 
 (defn reload-changed [& watch-dirs]
-  (let [track (tracker/tracker (map clojure.java.io/file watch-dirs) 0)]
+  (let [track (tracker (map file watch-dirs) 0)]
     (fn []
       (when-let [t (seq (track))]
         (println (format "Reloading: %s" (join ", " t)))
