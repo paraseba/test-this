@@ -1,4 +1,4 @@
-(ns tset.core
+(ns test-this
   (:use [clojure.core.incubator :only [seqable?]]
         [clojure.tools.namespace :only [find-namespaces-in-dir]]
         [clojure.string :only [join]]
@@ -75,5 +75,5 @@
 
 (defn has-meta? [key] (fn [v] (contains? (meta v) key)))
 
-(defn tset [& options]
+(defn test-this [& options]
   (run (apply merge default options)))

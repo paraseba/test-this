@@ -1,8 +1,8 @@
-(ns tset.test.core
-  (:use [tset.core])
+(ns test.test_this
+  (:use [test-this])
   (:use [clojure.test]))
 
-(deftest test-ns-mantcher
+(deftest test-ns-matcher
   (are [args] ((:namespace-filter (apply namespaces args)) (create-ns 'my-ns))
     ['my-ns]
     [:all]
@@ -36,7 +36,7 @@
     [:other (constantly false) :foo]
     [[:all #".*my.*" 'myxx-ns :my-ns] :foo]))
 
-(deftest test-vars-mantcher
+(deftest test-vars-matcher
   (are [args] ((:test-filter (apply tests args)) (intern (create-ns 'foo-ns) 'my-var))
     ['my-var]
     [:all]
