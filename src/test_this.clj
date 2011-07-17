@@ -167,10 +167,10 @@
       :or {reload-dirs ["src" "test"] before (fn []) after (fn [_]) test-dir "test"}
       :as options}]
   (let [nss (if namespaces
-              (apply match-namespaces (flatten [namespaces]))
+              (apply match-namespaces namespaces)
               {})
         tests (if tests
-                (apply match-tests (flatten [tests]))
+                (apply match-tests tests)
                 {})
         reload-dirs (flatten [reload-dirs])
         reload? (not (false? reload?))
