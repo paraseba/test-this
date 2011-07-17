@@ -64,12 +64,22 @@
               :else (throw (IllegalArgumentException. "Invalid tests definition"))))]
   {:test-filter (fn [n] (some #(% n) (map f ts)))}))
 
+(defonce main-tracker (atom nil))
+
+(defn init-tracker [watch-dirs]
+  (swap! main-tracker #(or (and % (= (:dirs %) (set watch-dirs)) %)
+                           {:dirs (set watch-dirs)
+                            :tracker (tracker (map file watch-dirs) 0)})))
+
+(defn changed-namespaces []
+  ((:tracker @main-tracker)))
+
 (defn reload-changed [& watch-dirs]
-  (let [track (tracker (map file watch-dirs) 0)]
-    (fn []
-      (when-let [t (seq (track))]
-        (println (format "Reloading: %s" (join ", " t)))
-        (apply reload t)))))
+  (init-tracker watch-dirs)
+  (fn []
+    (when-let [n (changed-namespaces)]
+      (println (format "Reloading: %s" (join ", " n)))
+      (apply reload n))))
 
 (defn test-this [& {:keys [namespaces tests reload-dirs reload? before after]
                     :or {reload-dirs ["src" "test"] before (fn []) after (fn [_])}
