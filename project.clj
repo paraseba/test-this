@@ -4,5 +4,5 @@
                  [org.clojure/tools.namespace "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
                  [com.stuartsierra/lazytest "1.2.3"]]
-  :dev-dependencies [[lein-marginalia "0.6.0"]]
+  :exclusions [org.clojure/clojure org.clojure/clojure-contrib]
   :repositories {"stuartsierra-releases" "http://stuartsierra.com/maven2"})
