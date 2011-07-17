@@ -13,7 +13,7 @@
         each-fixture-fn (cljtest/join-fixtures (:clojure.test/each-fixtures (meta ns)))]
     (once-fixture-fn
      (fn []
-       (doseq [v (vals (filter test-filter (ns-interns ns)))]
+       (doseq [v (filter test-filter (vals (ns-interns ns)))]
          (when (:test (meta v))
            (each-fixture-fn (fn [] (cljtest/test-var v)))))))))
 
@@ -31,3 +31,31 @@
   (let [dir (clojure.java.io/file dir)
         nss (get-test-namespaces dir ns-filter)]
     (after (do-run-tests nss test-filter))))
+
+(defn before [f] {:before f})
+
+(defn namespaces [nss]
+  (cond
+    (symbol? nss) #(= nss (ns-name %))
+    (= :all nss) (constantly true)
+    (keyword? nss) #(= (symbol (name nss)) (ns-name %))
+    (vector? nss) (fn [n] (some #(% n) (map namespaces nss)))
+    (isa? (class nss) java.util.regex.Pattern) #(re-matches nss (str (ns-name %)))
+    (fn? nss) nss
+    :else (throw (IllegalArgumentException. "Invalid namespace definition"))))
+
+(defn tests [ts]
+  (cond
+    (symbol? ts) #(= (.sym %) ts)
+    (= :all ts) (constantly true)
+    (keyword? ts) #(= (.sym %) (symbol (name ts)))
+    (vector? ts) (fn [v] (some #(% v) (map tests ts)))
+    (fn? ts) ts
+    (isa? (class ts) java.util.regex.Pattern) #(re-matches ts (str (.sym %)))
+    :else (throw (IllegalArgumentException. "Invalid tests definition"))))
+
+;(run (-> default
+       ;(namespaces )
+       ;(tests )
+       ;(before)
+       ;(after)))
