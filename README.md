@@ -5,7 +5,7 @@ Powerful test runner for clojure
 `test-this` allows you to run your `clojure.test` tests easily. Some of the features are:
 
 * Fine-grained selection of which namespaces and test functions to run
-* Automatically reload modified files
+* **Automatically reload modified files**
 * No changes to source code needed, use all your `clojure.test` tests with all its features (including proper handling of
   fixtures)
 * Extensible
