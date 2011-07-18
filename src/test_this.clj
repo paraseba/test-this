@@ -46,7 +46,8 @@
   (doseq [n namespaces]
     (require n))
   (with-redefs [cljtest/test-all-vars (partial my-test-all-vars test-filter)]
-    (apply cljtest/run-tests namespaces)))
+    (binding [cljtest/*test-out* *out*]
+      (apply cljtest/run-tests namespaces))))
 
 (defn has-meta?
   "Predicate function, true if the passed argument contains the truthy metadata key."
