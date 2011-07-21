@@ -92,6 +92,12 @@ Will run only :wip tests in all namespaces. Of course, you can combine everythin
 
 to run tests in integration namespaces matching "edit", and only :wip functions.
 
+### Force reload
+
+If for any reason you need to reload all namespaces, even if they are not modified,
+you can call `(reset-changes)` function. The next time you run the tests, all
+namespaces will be reloaded.
+
 ### Customization
 
 Further options to run-tests include:
