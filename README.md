@@ -116,6 +116,7 @@ If you need more control, take a look at the documentation.
 * re-run failing tests
 * Add clojure.stacktrace
 * Add difftest
+* Leiningen plugin
 
 ## License
 
