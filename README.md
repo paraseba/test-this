@@ -17,7 +17,7 @@ Powerful test runner for clojure
 
 Add `test-this` as a `dev-dependency`. If you're using leiningen:
 
-    :dev-dependencies [[test-this "0.1.1"]]
+    :dev-dependencies [[test-this "0.2.0"]]
 
 If you're using maven, you already know how to do this.
 
