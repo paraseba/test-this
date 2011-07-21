@@ -49,7 +49,7 @@
     (binding [cljtest/*test-out* *out*]
       (apply cljtest/run-tests namespaces))))
 
-(defn has-meta?
+(defn- has-meta?
   "Predicate function, true if the passed argument contains the truthy metadata key."
   [key]
   #(-> % meta (get key)))
@@ -58,7 +58,7 @@
   ^{:doc "File modification time tracker"}
   main-tracker (atom nil))
 
-(defn init-tracker
+(defn- init-tracker
   "Initialize the modification time tracker. It will reload everything the first time."
   [watch-dirs]
   (swap! main-tracker #(or (and % (= (:dirs %) (set watch-dirs)) %)
@@ -80,6 +80,12 @@
       (apply reload n))))
 
 ;; # Public API
+
+(defn reset-changes
+  "Resets file change tracker.
+  All namespaces will be reload, the next time the tests are run."
+  []
+  (reset! main-tracker nil))
 
 (defn match-namespaces
   "Convert a set of namespace matching instructions in a predicate function.
