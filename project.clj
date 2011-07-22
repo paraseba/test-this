@@ -1,4 +1,4 @@
-(defproject test-this "0.2.1"
+(defproject test-this "0.2.2"
   :description "Powerful clojure test runner"
   :dependencies [[org.clojure/clojure "1.3.0-beta1"]
                  [org.clojure/tools.namespace "0.1.1"]
