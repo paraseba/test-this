@@ -60,6 +60,13 @@ And now, just do
 
 And all your Work In Progress namespaces will be tested.
 
+If you want to run all tests but those which are work in progress, you can use
+
+    (run-tests :namespaces [:!wip])
+
+The keyword `:!foo` will match any namespace which doesn't have a thruthy metadata
+keyword :foo.
+
 If you need total control, you can pass a predicate that will receive the namespace
 
     (run-tests :namespaces [(fn [ns] (= (ns-name ns) "test.foo"))])
@@ -88,9 +95,10 @@ The same logic applies to selecting test functions
 Will run only :wip tests in all namespaces. Of course, you can combine everything, use:
 
     (run-tests :namespaces [[:integration #".*edit.*"]]
-               :tests [:wip])
+               :tests [:!wip])
 
-to run tests in integration namespaces matching "edit", and only :wip functions.
+to run tests in integration namespaces matching "edit", and only not work in progress
+tests.
 
 ### Force reload
 
