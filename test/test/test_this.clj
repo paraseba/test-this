@@ -11,6 +11,7 @@
     ['my-ns]
     [:all]
     [:my-meta]
+    [:!myxx-meta]
     [#".*my-.*"]
     [(constantly true)]
     ['my-ns]
@@ -28,6 +29,7 @@
                       (make-ns 'my-ns {:my-meta :meta :false false})))
     ['myxx-ns]
     [:myxx-ns]
+    [:!my-meta]
     [:false]
     [#".*myxx-.*"]
     [(constantly false)]
@@ -51,6 +53,7 @@
     ['my-var]
     [:all]
     [:my-meta]
+    [:!myxx-meta]
     [#".*my-.*"]
     [(constantly true)]
     ['my-var]
@@ -67,6 +70,7 @@
   (are [args] (not ((:test-filter (apply match-tests args)) (make-var 'my-var {:my-meta :meta :false false})))
     ['myxx-var]
     [:myxx-meta]
+    [:!my-meta]
     [:false]
     [#".*myxx-.*"]
     [(constantly false)]

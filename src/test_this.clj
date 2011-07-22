@@ -104,6 +104,8 @@
             (cond
               (symbol? ns) #(= ns (ns-name %))
               (= :all ns) (constantly true)
+              (and (keyword ns) (re-matches #"^!(.+)" (name ns)))
+                (comp not (-> ns name (subs 1) keyword has-meta?))
               (keyword? ns) (has-meta? ns)
               (isa? (class ns) java.util.regex.Pattern)
               #(re-matches ns (str (ns-name %)))
@@ -132,6 +134,8 @@
             (cond
               (symbol? v) #(= (.sym %) v)
               (= :all v) (constantly true)
+              (and (keyword v) (re-matches #"^!(.+)" (name v)))
+                (comp not (-> v name (subs 1) keyword has-meta?))
               (keyword? v) (has-meta? v)
               (fn? v) v
               (isa? (class v) java.util.regex.Pattern) #(re-matches v (str (.sym %)))
