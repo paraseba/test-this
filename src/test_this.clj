@@ -175,7 +175,7 @@
   * :after is a function called with the results map after executing all tests. Default: identity.
   "
   [& {:keys [namespaces tests reload-dirs reload? before after test-dir]
-      :or {reload-dirs ["src" "test"] before (fn []) after (fn [_]) test-dir "test"}
+      :or {reload-dirs ["src" "test"] before (fn []) after identity test-dir "test"}
       :as options}]
   {:pre [(seqable? namespaces) (seqable? tests)]}
   (let [nss (if namespaces
