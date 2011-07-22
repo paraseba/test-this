@@ -193,3 +193,10 @@
                          before)
                :after after}]
   (run (merge hooks nss tests))))
+
+(defn failed?
+  "Return true if some errors or fails where detected.
+  It receives as argument the output of clojure.test/run-tests, which by default
+  the output of test-this/run-tests."
+  [{:keys [error fail]}]
+  (or (not (zero? error)) (not (zero? fail))))

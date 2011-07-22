@@ -118,6 +118,14 @@ Further options to run-tests include:
 
 If you need more control, take a look at the documentation.
 
+### Scripts
+
+If you want to use run-tests on your scripts, it may be useful to know if any tests
+failed. For this you can do
+
+    (when (failed? (run-tests))
+      (System/exit 1))
+
 ## ToDo
 
 * Autotest
