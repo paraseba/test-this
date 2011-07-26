@@ -31,11 +31,12 @@
   test-filter is a predicate to filter all vars in namespace ns"
   [test-filter ns]
   (let [once-fixture-fn (cljtest/join-fixtures (:clojure.test/once-fixtures (meta ns)))
-        each-fixture-fn (cljtest/join-fixtures (:clojure.test/each-fixtures (meta ns)))]
-    (once-fixture-fn
-     (fn []
-       (doseq [v (filter test-filter (vals (ns-interns ns)))]
-         (when (:test (meta v))
+        each-fixture-fn (cljtest/join-fixtures (:clojure.test/each-fixtures (meta ns)))
+        vars (filter #(and (:test (meta %)) (test-filter %))  (vals (ns-interns ns)))]
+    (when (seq vars)
+      (once-fixture-fn
+       (fn []
+         (doseq [v vars]
            (each-fixture-fn (fn [] (cljtest/test-var v)))))))))
 
 (defn- do-run-tests
